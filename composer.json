@@ -1,0 +1,36 @@
+{
+    "name": "cronwatcher/laravel",
+    "description": "A Laravel 12 package for pinging cron status on cronWatcher Server.",
+    "type": "library",
+    "license": "MIT",
+    "version": "1.0.0",
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^12.0"
+    },
+    "require-dev": {
+      "phpunit/phpunit": "^10.0",
+      "orchestra/testbench": "^8.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "CronWatcher\\Laravel\\": "src/",
+            "CronWatcher\\Laravel\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "CronWatcher\\Laravel\\CronWatcherServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+      "test": "phpunit"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
