@@ -1,14 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CronWatcher\Laravel\Console\Commands;
 
 use CronWatcher\Laravel\Profiling\DatabaseProfiler;
 use CronWatcher\Laravel\Profiling\SystemProfiler;
 use CronWatcher\Laravel\Settings;
 use Illuminate\Console\Command;
-
 use Illuminate\Support\Facades\Cache;
-
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 
@@ -37,26 +37,25 @@ class ProfileTask extends Command
         $databaseProfiler->listen();
 
         $maxSeconds = Settings::PROFILING_MAX_EXECUTE_SECONDS;
-        $start = time();
+        $start      = time();
 
         while (Cache::get("cron:{$jobName}:running")) {
-
             if ((time() - $start) > $maxSeconds) {
-                Log::channel('cronwatcher')->warning("Profiling timeout: job [$jobName] exceeded $maxSeconds seconds.");
+                Log::channel('cronwatcher')->warning("Profiling timeout: job [{$jobName}] exceeded {$maxSeconds} seconds.");
                 break;
             }
             $cpuLoad = $systemProfiler->getCpuLoad();
-            $entry = [
-              'timestamp' => now()->toDateTimeString(),
-              'memory_mb' => $systemProfiler->getMemoryUsage(),
-              'cpu_1min' => $cpuLoad[0] ?? null,
-              'cpu_5min' => $cpuLoad[1] ?? null,
-              'query_count' => count($databaseProfiler->getQueries()),
-              'total_query_time_ms' => $databaseProfiler->getTotalQueryTime(),
-              'active_connections' => $databaseProfiler->getActiveConnections(),
+            $entry   = [
+                'timestamp'           => now()->toDateTimeString(),
+                'memory_mb'           => $systemProfiler->getMemoryUsage(),
+                'cpu_1min'            => $cpuLoad[0] ?? null,
+                'cpu_5min'            => $cpuLoad[1] ?? null,
+                'query_count'         => count($databaseProfiler->getQueries()),
+                'total_query_time_ms' => $databaseProfiler->getTotalQueryTime(),
+                'active_connections'  => $databaseProfiler->getActiveConnections(),
             ];
 
-            $metrics = Cache::get("cron:{$jobName}:metrics", []);
+            $metrics   = Cache::get("cron:{$jobName}:metrics", []);
             $metrics[] = $entry;
             try {
                 Cache::put("cron:{$jobName}:metrics", $metrics, now()->addHours(Settings::PROFILING_MAX_EXECUTE_SECONDS));
@@ -65,6 +64,7 @@ class ProfileTask extends Command
             }
             sleep(Settings::PROFILING_INTERVAL_SECONDS);
         }
+
         return CommandAlias::SUCCESS;
     }
 }

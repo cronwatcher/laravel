@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CronWatcher\Laravel\Console\Commands;
 
+use CronWatcher\Laravel\Event;
+use CronWatcher\Laravel\Settings;
 use Illuminate\Console\Command;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use CronWatcher\Laravel\Event;
-use CronWatcher\Laravel\Settings;
 use Symfony\Component\Console\Command\Command as CommandAlias;
 
 class UpdateCronWatcher extends Command
@@ -40,13 +42,13 @@ class UpdateCronWatcher extends Command
 
         /** @var \Illuminate\Console\Scheduling\Event $event */
         foreach ($schedule->events() as $event) {
-            $expression = $event->getExpression();
+            $expression  = $event->getExpression();
             $commandName = Event::getCommand($event);
             $description = \CronWatcher\Laravel\Command::getCommandDescription($commandName, $commands);
 
             $pingParams = [
-                'expression' => $expression,
-                'command' => $commandName,
+                'expression'  => $expression,
+                'command'     => $commandName,
                 'description' => $description,
             ];
 
@@ -54,18 +56,18 @@ class UpdateCronWatcher extends Command
         }
 
         try {
-
             $syncData = [
-                'events' => $eventsToRegister,
+                'events'          => $eventsToRegister,
                 'client_timezone' => Settings::getTimezone(),
             ];
 
             $response = Http::withToken(Settings::getToken())->withHeaders(['Accept' => 'application/json'])
-                ->post(Settings::getUrl().'/events/sync', $syncData);
+                ->post(Settings::getUrl() . '/events/sync', $syncData)
+            ;
 
             if ($response->failed()) {
-                $this->error("Cronjobs didn't synced successfully! -> ".$response->body());
-                Log::channel('cronwatcher')->error("Cronjobs didn't synced successfully! -> ".$response->body());
+                $this->error("Cronjobs didn't synced successfully! -> " . $response->body());
+                Log::channel('cronwatcher')->error("Cronjobs didn't synced successfully! -> " . $response->body());
 
                 return CommandAlias::FAILURE;
             }
@@ -73,13 +75,12 @@ class UpdateCronWatcher extends Command
             $this->info('Cronjobs synced successfully!');
 
             return CommandAlias::SUCCESS;
-
         } catch (ConnectionException $connectionException) {
-            $this->error("Cronjobs didn't synced successfully! -> ".$connectionException->getMessage());
-            Log::channel('cronwatcher')->error("Cronjobs didn't synced successfully! -> ".$connectionException->getMessage());
+            $this->error("Cronjobs didn't synced successfully! -> " . $connectionException->getMessage());
+            Log::channel('cronwatcher')->error("Cronjobs didn't synced successfully! -> " . $connectionException->getMessage());
         } catch (\Exception $exception) {
-            $this->error("Cronjobs didn't synced successfully! -> ".$exception->getMessage());
-            Log::channel('cronwatcher')->error("Cronjobs didn't synced successfully! -> ".$exception->getMessage());
+            $this->error("Cronjobs didn't synced successfully! -> " . $exception->getMessage());
+            Log::channel('cronwatcher')->error("Cronjobs didn't synced successfully! -> " . $exception->getMessage());
         }
 
         return CommandAlias::FAILURE;
