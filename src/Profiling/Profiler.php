@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CronWatcher\Laravel\Profiling;
 
 use CronWatcher\Laravel\Settings;
@@ -12,21 +14,22 @@ class Profiler
     private mixed $metrics = [];
     private string $name;
     private bool $running = false;
+
     public function start(): void
     {
         $name = $this->getName();
         try {
             Cache::put("cron:{$name}:running", true, now()->addHours(Settings::PROFILING_MAX_EXECUTE_SECONDS));
-            Process::start("php artisan cronwatcher:profile \"$name\"");
+            Process::start("php artisan cronwatcher:profile \"{$name}\"");
             $this->running = true;
         } catch (\Exception $e) {
             Log::channel('cronwatcher')->error($e->getMessage());
         }
     }
 
-    public function stop() : void
+    public function stop(): void
     {
-        if ($this->running === false) {
+        if (false === $this->running) {
             return;
         }
         $name = $this->getName();
@@ -36,7 +39,7 @@ class Profiler
         $this->running = false;
     }
 
-    public function getMetrics() : array
+    public function getMetrics(): array
     {
         return $this->metrics;
     }
@@ -50,5 +53,4 @@ class Profiler
     {
         $this->name = $name;
     }
-
 }

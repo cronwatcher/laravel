@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace CronWatcher\Laravel;
 
 use Illuminate\Http\Client\ConnectionException;
@@ -10,11 +13,12 @@ class CronWatcherClient
     public static function ping(array $pingParams, string $status, ?string $message = null): void
     {
         try {
-            $pingParams['status'] = $status;
+            $pingParams['status']  = $status;
             $pingParams['message'] = $message;
 
             $response = Http::withToken(Settings::getToken())->withHeaders(['Accept' => 'application/json'])
-                ->post(Settings::getUrl().'/events/ping', $pingParams);
+                ->post(Settings::getUrl() . '/events/ping', $pingParams)
+            ;
 
             if ($response->failed()) {
                 Log::channel('cronwatcher')->error($response->body());
@@ -30,7 +34,8 @@ class CronWatcherClient
     {
         try {
             $response = Http::withToken(Settings::getToken())->withHeaders(['Accept' => 'application/json'])
-              ->post(Settings::getUrl().'/events/metric', $metricParams);
+                ->post(Settings::getUrl() . '/events/metric', $metricParams)
+            ;
 
             if ($response->failed()) {
                 Log::channel('cronwatcher')->error($response->body());

@@ -1,15 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CronWatcher\Laravel;
 
 final class Settings
 {
-
     public const PROFILING_MAX_EXECUTE_SECONDS = 600;
-    public const PROFILING_INTERVAL_SECONDS = 5;
+    public const PROFILING_INTERVAL_SECONDS    = 5;
+
     public static function getUrl(): string
     {
-        return 'http://host.docker.internal:82/api';
+        return 'https://cronwatcher.io/api';
     }
 
     public static function getToken()
@@ -22,7 +24,7 @@ final class Settings
         if (config('app.schedule_timezone')) {
             return config('app.schedule_timezone');
         }
+
         return config('app.timezone');
     }
-
 }

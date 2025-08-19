@@ -5,16 +5,22 @@ declare(strict_types=1);
 namespace CronWatcher\Laravel\Tests;
 
 use CronWatcher\Laravel\Command;
-use Orchestra\Testbench\TestCase;
 use Illuminate\Console\Command as IlluminateCommand;
+use Orchestra\Testbench\TestCase;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class CommandTest extends TestCase
 {
     public function testReturnsDescriptionIfCommandExistsAndIsIlluminateCommand()
     {
         $mockCommand = $this->getMockBuilder(IlluminateCommand::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $mockCommand->method('getDescription')->willReturn('Test description');
 
         $commands = [
@@ -28,7 +34,7 @@ class CommandTest extends TestCase
     public function testReturnsEmptyStringIfCommandDoesNotExist()
     {
         $commands = [];
-        $result = Command::getCommandDescription('nonexistent:command', $commands);
+        $result   = Command::getCommandDescription('nonexistent:command', $commands);
         $this->assertSame('', $result);
     }
 
@@ -45,7 +51,8 @@ class CommandTest extends TestCase
     {
         $mockCommand = $this->getMockBuilder(IlluminateCommand::class)
             ->disableOriginalConstructor()
-            ->getMock();
+            ->getMock()
+        ;
         $mockCommand->method('getDescription')->willReturn('Should not be returned');
 
         $commands = [
@@ -55,4 +62,3 @@ class CommandTest extends TestCase
         $this->assertSame('', $result);
     }
 }
-

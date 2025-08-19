@@ -5,25 +5,30 @@ declare(strict_types=1);
 namespace CronWatcher\Laravel\Tests;
 
 use CronWatcher\Laravel\CronWatcherClient;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Client\Response;
 use Orchestra\Testbench\TestCase;
-use Mockery;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class CronWatcherClientTest extends TestCase
 {
     public function tearDown(): void
     {
-        Mockery::close();
+        \Mockery::close();
         parent::tearDown();
     }
 
     public function testPingSuccessLogsNothingOnSuccessResponse()
     {
         $pingParams = ['foo' => 'bar'];
-        $status = 'ok';
-        $message = 'test';
+        $status     = 'ok';
+        $message    = 'test';
 
         // Instead, set config values so real Settings class works
         config(['cronwatcher.key' => 'token']);
@@ -32,7 +37,7 @@ class CronWatcherClientTest extends TestCase
         config(['app.schedule_timezone' => null]);
 
         // Mock HTTP
-        $response = Mockery::mock(Response::class);
+        $response = \Mockery::mock(Response::class);
         $response->shouldReceive('failed')->andReturn(false);
         Http::shouldReceive('withToken')->with('token')->andReturnSelf();
         Http::shouldReceive('withHeaders')->andReturnSelf();
@@ -48,21 +53,21 @@ class CronWatcherClientTest extends TestCase
     public function testPingLogsErrorOnFailedResponse()
     {
         $pingParams = ['foo' => 'bar'];
-        $status = 'fail';
-        $message = 'fail message';
+        $status     = 'fail';
+        $message    = 'fail message';
 
         config(['cronwatcher.key' => 'token']);
         config(['app.timezone' => 'Europe/Berlin']);
         config(['app.schedule_timezone' => null]);
 
-        $response = Mockery::mock(Response::class);
+        $response = \Mockery::mock(Response::class);
         $response->shouldReceive('failed')->andReturn(true);
         $response->shouldReceive('body')->andReturn('error-body');
         Http::shouldReceive('withToken')->with('token')->andReturnSelf();
         Http::shouldReceive('withHeaders')->andReturnSelf();
         Http::shouldReceive('post')->andReturn($response);
 
-        $logMock = Mockery::mock();
+        $logMock = \Mockery::mock();
         $logMock->shouldReceive('error')->with('error-body')->once();
         Log::shouldReceive('channel')->with('cronwatcher')->andReturn($logMock);
 
@@ -73,8 +78,8 @@ class CronWatcherClientTest extends TestCase
     public function testPingLogsConnectionException()
     {
         $pingParams = ['foo' => 'bar'];
-        $status = 'fail';
-        $message = 'fail message';
+        $status     = 'fail';
+        $message    = 'fail message';
 
         config(['cronwatcher.key' => 'token']);
         config(['app.timezone' => 'Europe/Berlin']);
@@ -82,9 +87,9 @@ class CronWatcherClientTest extends TestCase
 
         Http::shouldReceive('withToken')->with('token')->andReturnSelf();
         Http::shouldReceive('withHeaders')->andReturnSelf();
-        Http::shouldReceive('post')->andThrow(new \Illuminate\Http\Client\ConnectionException('connection error'));
+        Http::shouldReceive('post')->andThrow(new ConnectionException('connection error'));
 
-        $logMock = Mockery::mock();
+        $logMock = \Mockery::mock();
         $logMock->shouldReceive('error')->with('connection error')->once();
         Log::shouldReceive('channel')->with('cronwatcher')->andReturn($logMock);
 
@@ -95,8 +100,8 @@ class CronWatcherClientTest extends TestCase
     public function testPingLogsGenericException()
     {
         $pingParams = ['foo' => 'bar'];
-        $status = 'fail';
-        $message = 'fail message';
+        $status     = 'fail';
+        $message    = 'fail message';
 
         config(['cronwatcher.key' => 'token']);
         config(['app.timezone' => 'Europe/Berlin']);
@@ -106,7 +111,7 @@ class CronWatcherClientTest extends TestCase
         Http::shouldReceive('withHeaders')->andReturnSelf();
         Http::shouldReceive('post')->andThrow(new \Exception('generic error'));
 
-        $logMock = Mockery::mock();
+        $logMock = \Mockery::mock();
         $logMock->shouldReceive('error')->with('generic error')->once();
         Log::shouldReceive('channel')->with('cronwatcher')->andReturn($logMock);
 

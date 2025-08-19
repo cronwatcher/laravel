@@ -1,26 +1,27 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CronWatcher\Laravel\Tests;
 
 use CronWatcher\Laravel\CronWatcherServiceProvider;
-use CronWatcher\Laravel\RegisterCallBacks;
 use CronWatcher\Laravel\Profiling\Profiler;
+use CronWatcher\Laravel\RegisterCallBacks;
 use Illuminate\Console\Scheduling\Schedule;
 use Orchestra\Testbench\TestCase;
-use Mockery;
 
+/**
+ * @internal
+ *
+ * @coversNothing
+ */
 class CronWatcherServiceProviderTest extends TestCase
 {
-    protected function getPackageProviders($app): array
-    {
-        return [CronWatcherServiceProvider::class];
-    }
-
     public function testBootRegistersScheduleAndCallbacks()
     {
-        $schedule = Mockery::mock(Schedule::class);
-        $callBacks = Mockery::mock(RegisterCallBacks::class);
-        $profiler = Mockery::mock(Profiler::class);
+        $schedule  = \Mockery::mock(Schedule::class);
+        $callBacks = \Mockery::mock(RegisterCallBacks::class);
+        $profiler  = \Mockery::mock(Profiler::class);
 
         $callBacks->shouldReceive('register')->once()->with($schedule, $profiler);
         $schedule->shouldReceive('command')->with('cronwatcher:update')->andReturnSelf();
@@ -34,5 +35,9 @@ class CronWatcherServiceProviderTest extends TestCase
         $provider->boot($schedule, $callBacks, $profiler);
         $this->assertTrue(true); // If no exception, test passes
     }
-}
 
+    protected function getPackageProviders($app): array
+    {
+        return [CronWatcherServiceProvider::class];
+    }
+}

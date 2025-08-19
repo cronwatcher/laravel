@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CronWatcher\Laravel;
 
 use CronWatcher\Laravel\Console\Commands\ProfileTask;
+use CronWatcher\Laravel\Console\Commands\UpdateCronWatcher;
 use CronWatcher\Laravel\Profiling\Profiler;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Support\ServiceProvider;
-use CronWatcher\Laravel\Console\Commands\UpdateCronWatcher;
 
 class CronWatcherServiceProvider extends ServiceProvider
 {
@@ -15,13 +17,12 @@ class CronWatcherServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-
         $this->mergeConfigFrom(
             __DIR__ . '/../config/cronwatcher.php',
             'cronwatcher'
         );
         $this->mergeConfigFrom(
-            __DIR__.'/../config/log.php',
+            __DIR__ . '/../config/log.php',
             'logging.channels'
         );
     }
@@ -45,6 +46,5 @@ class CronWatcherServiceProvider extends ServiceProvider
         $this->app->booted(function () use ($schedule, $callBacks, $profiler) {
             $callBacks::register($schedule, $profiler);
         });
-
     }
 }

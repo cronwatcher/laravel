@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CronWatcher\Laravel;
 
 use CronWatcher\Laravel\Profiling\Profiler;
@@ -10,7 +12,7 @@ class RegisterCallBacks
 {
     public static function register(Schedule $schedule, Profiler $profiler): void
     {
-        $commands = Artisan::all();
+        $commands  = Artisan::all();
         $timeStamp = time();
 
         foreach ($schedule->events() as $event) {
@@ -25,13 +27,13 @@ class RegisterCallBacks
             }
 
             $pingParams = [
-              'expression' => $event->getExpression(),
-              'command' => $commandName,
-              'description' => $description,
-              'timestamp' => $timeStamp,
+                'expression'  => $event->getExpression(),
+                'command'     => $commandName,
+                'description' => $description,
+                'timestamp'   => $timeStamp,
             ];
 
-            $logFile = storage_path('logs/schedule-'.sha1($event->mutexName()).'.log');
+            $logFile     = storage_path('logs/schedule-' . sha1($event->mutexName()) . '.log');
             $profileName = sha1($event->mutexName());
             $profiler->setName($profileName);
 
@@ -49,20 +51,16 @@ class RegisterCallBacks
             });
 
             $event->onFailure(function () use ($logFile, $pingParams) {
-
                 $failedText = file_exists($logFile) ? file_get_contents($logFile) : '';
                 CronWatcherClient::ping($pingParams, 'failed', $failedText);
             });
 
-            $event->after(function () use ($logFile, $profiler, $timeStamp, $pingParams) {
+            $event->after(function () use ($logFile, $profiler, $pingParams) {
                 @unlink($logFile);
                 $profiler->stop();
                 $pingParams['metrics'] = $profiler->getMetrics();
                 CronWatcherClient::sendMetrics($pingParams);
             });
-
-
         }
     }
-
 }
