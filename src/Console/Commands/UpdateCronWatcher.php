@@ -59,6 +59,8 @@ class UpdateCronWatcher extends Command
             $syncData = [
                 'events'          => $eventsToRegister,
                 'client_timezone' => Settings::getTimezone(),
+                'laravel_version' => app()->version(),
+                'php_version'     => PHP_VERSION,
             ];
 
             $response = Http::withToken(Settings::getToken())->withHeaders(['Accept' => 'application/json'])
