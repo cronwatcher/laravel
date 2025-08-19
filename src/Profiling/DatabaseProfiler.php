@@ -42,7 +42,7 @@ class DatabaseProfiler
         try {
             $result = DB::select("SHOW STATUS WHERE `variable_name` = 'Threads_connected'");
             if (!empty($result)) {
-                return $result[0]->Value;
+                return (int) ($result[0]->Value ?? $result[0]->value ?? 0);
             }
         } catch (\Exception) {
             return 0;
