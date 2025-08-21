@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace CronWatcher\Laravel;
 
 class Event
@@ -7,7 +9,7 @@ class Event
     public static function getCommand(\Illuminate\Console\Scheduling\Event $event): ?string
     {
         if (is_null($event->command)) {
-            return $event->description;
+            return $event->description ?? 'closure.' . $event->mutexName();
         }
 
         $commandName = $event->command;
