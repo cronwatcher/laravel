@@ -4,7 +4,7 @@
   "keywords": ["laravel", "cron", "scheduler", "monitoring", "cronwatcher"],
   "type": "library",
   "license": "MIT",
-  "version": "3.0.0",
+  "version": "2.0.0",
   "homepage": "https://cronwatcher.io",
   "authors": [
     {
@@ -14,8 +14,8 @@
     }
   ],
   "require": {
-    "php": "^8.2",
-    "illuminate/support": "^11.0",
+    "php": "^8.1",
+    "illuminate/support": "^10.0",
     "guzzlehttp/guzzle": "^7.9"
   },
   "require-dev": {
