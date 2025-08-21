@@ -43,7 +43,8 @@ class CronWatcherServiceProvider extends ServiceProvider
             $schedule->command('cronwatcher:update')->hourly();
         });
 
-        $this->app->booted(function () use ($schedule, $callBacks, $profiler) {
+        $this->app->booted(function () use ($callBacks, $profiler) {
+            $schedule = app(Schedule::class);
             $callBacks::register($schedule, $profiler);
         });
     }
